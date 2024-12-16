@@ -3,26 +3,29 @@
 
 class Maze {
 public:
-    const int size;
-    int start;
     Maze();
     void clearScreen();
-    void randomDFS(int pos, int size);
     void renderMaze();
-    void solveMazeDFS();
-    void solveMazeBFS();
+    bool solveMazeDFS();
+    bool solveMazeBFS();
     void resetVisited();
+    void generateMaze(); 
+    void createMazeDFS(); 
 
 private:
+    const int size;
+    int start;
     int goal;
     int pos;
-    bool visited[25];
-    bool walls[25][2]; // 0: Left wall, 1: Top wall
-    int path[25];
+    bool visited[10];
+    bool walls[10][2]; // 0: Left wall, 1: Top wall
+    int path[10];
 
     int nextCell(int pos, int size);
+    void randomDFS(int pos, int size);
     void connect(int pos1, int pos2);
     bool inBounds(int pos);
+    bool isSolvable(); 
 };
 
 #endif 

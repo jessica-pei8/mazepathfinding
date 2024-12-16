@@ -6,11 +6,13 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include <algorithm>
+#include <random>
 
 using namespace std::this_thread;
 using namespace std::chrono;
 
-Maze::Maze() : size(5), start(0), goal(size * size - 1), pos(start) {
+Maze::Maze() : size(10), start(0), goal(size * size - 1), pos(start) {
     std::fill_n(visited, size * size, false);
     std::fill_n(path, size * size, 0);
     for (int i = 0; i < size * size; ++i) {
@@ -50,30 +52,45 @@ int Maze::nextCell(int pos, int size) {
 }
 
 void Maze::connect(int pos1, int pos2) {
-    if (pos2 > pos1) {
-        if (pos2 == pos1 + 1) {
-            walls[pos2][0] = true; // Remove left wall of pos2
-        } else {
-            walls[pos2][1] = true; // Remove top wall of pos2
-        }
-    } else {
-        if (pos1 == pos2 + 1) {
-            walls[pos1][0] = true; // Remove left wall of pos1
-        } else {
-            walls[pos1][1] = true; // Remove top wall of pos1
-        }
+    int x1 = pos1 % size;
+    int y1 = pos1 / size;
+    int x2 = pos2 % size;
+    int y2 = pos2 / size;
+
+    // If pos1 and pos2 are horizontally adjacent (same row)
+    if (y1 == y2 && abs(x1 - x2) == 1) {
+        // Remove the vertical wall between pos1 and pos2
+        walls[pos1][0] = true;
+        walls[pos2][0] = true;
+    }
+    // If pos1 and pos2 are vertically adjacent (same column)
+    else if (x1 == x2 && abs(y1 - y2) == 1) {
+        // Remove the horizontal wall between pos1 and pos2
+        walls[pos1][1] = true;
+        walls[pos2][1] = true;
     }
 }
 
 void Maze::randomDFS(int pos, int size) {
-    visited[pos] = true;
+    visited[pos] = 1;
     int next = pos + nextCell(pos, size);
 
     while (next != pos) {
+        sleep_for(nanoseconds(10)); 
         connect(pos, next);
-        randomDFS(next, size);
+        pos = next;
+        randomDFS(pos, size);
         next = pos + nextCell(pos, size);
     }
+}
+
+void Maze::createMazeDFS() {
+    int pos = 0;
+    for (int i = 0; i < size * size; i++) {
+        visited[i] = false;
+    }
+
+    randomDFS(pos, size);
 }
 
 bool Maze::inBounds(int pos) {
@@ -118,19 +135,21 @@ void Maze::renderMaze() {
     std::cout << "+" << std::endl;
 }
 
-void Maze::solveMazeDFS() {
+bool Maze::solveMazeDFS() {
+    clearScreen();
+    resetVisited(); 
     std::stack<int> stack;
     stack.push(start);
     visited[start] = true;
-    path[start] = 1;
 
-    int directions[] = {-size, 1, size, -1};
+    int directions[] = {-size, 1, size, -1};  
 
     while (!stack.empty()) {
         int pos = stack.top();
         stack.pop();
 
         if (pos == goal) {
+            path[pos] = 1; 
             break;
         }
 
@@ -138,33 +157,34 @@ void Maze::solveMazeDFS() {
             int next = pos + dir;
 
             if (inBounds(next) && !visited[next]) {
-                if (dir == -size && !walls[pos][1]) {
+                // Check for valid movements based on wall connections
+                if (dir == -size && !walls[pos][1]) {  // Moving up, check the bottom wall of the current cell
                     stack.push(next);
                     visited[next] = true;
-                    path[next] = 1;
-                } else if (dir == 1 && (pos + 1) % size != 0 && !walls[pos + 1][0]) {
+                } else if (dir == 1 && (pos + 1) % size != 0 && !walls[pos + 1][0]) {  // Moving right, check the left wall of the right cell
                     stack.push(next);
                     visited[next] = true;
-                    path[next] = 1;
-                } else if (dir == size && pos < size * (size - 1) && !walls[pos + size][1]) {
+                } else if (dir == size && pos < size * (size - 1) && !walls[pos + size][1]) {  // Moving down, check the top wall of the cell below
                     stack.push(next);
                     visited[next] = true;
-                    path[next] = 1;
-                } else if (dir == -1 && pos % size != 0 && !walls[pos][0]) {
+                } else if (dir == -1 && pos % size != 0 && !walls[pos][0]) {  // Moving left, check the right wall of the left cell
                     stack.push(next);
                     visited[next] = true;
-                    path[next] = 1;
                 }
             }
         }
-
-        sleep_for(milliseconds(50));
+        path[pos] = 1;
         clearScreen();
         renderMaze();
+        sleep_for(milliseconds(50));
     }
+    renderMaze();
+    return visited[goal];  
 }
 
-void Maze::solveMazeBFS() {
+
+bool Maze::solveMazeBFS() {
+    clearScreen(); 
     std::queue<int> q;
     q.push(start);
     visited[start] = true;
@@ -210,9 +230,8 @@ void Maze::solveMazeBFS() {
             }
         }
 
+        renderMaze();  
         sleep_for(milliseconds(50));
-        clearScreen();
-        renderMaze();
     }
 
     int current = goal;
@@ -222,10 +241,21 @@ void Maze::solveMazeBFS() {
     }
     path[start] = 1;
 
-    clearScreen();
-    renderMaze();
+    renderMaze();  
+    return pos==goal; 
 }
+
 
 void Maze::resetVisited() {
     std::fill_n(visited, size * size, false);
+}
+
+bool Maze::isSolvable() {
+    resetVisited(); 
+    return solveMazeDFS();  
+}
+
+void Maze::generateMaze() {
+    std::fill_n(visited, size * size, false); 
+    randomDFS(start, size);  
 }
