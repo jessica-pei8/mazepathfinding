@@ -2,6 +2,6 @@
 All pathfinding algorithms visualized by solving a generated maze in C++
 
 ```
-g++ main.cpp -o main
+g++ -o main main.cpp maze.cpp
 ./main
 ```

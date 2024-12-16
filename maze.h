@@ -3,8 +3,9 @@
 
 class Maze {
 public:
+    const int size;
+    int start;
     Maze();
-
     void clearScreen();
     void randomDFS(int pos, int size);
     void renderMaze();
@@ -13,8 +14,6 @@ public:
     void resetVisited();
 
 private:
-    const int size;
-    int start;
     int goal;
     int pos;
     bool visited[25];

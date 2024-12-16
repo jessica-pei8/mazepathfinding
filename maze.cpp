@@ -172,7 +172,7 @@ void Maze::solveMazeBFS() {
 
     int directions[] = {-size, 1, size, -1};
     std::vector<int> parent(size * size, -1);
-    std::fill_n(parent, size * size, -1);
+    std::fill_n(parent.begin(), size * size, -1);
 
     while (!q.empty()) {
         int pos = q.front();
