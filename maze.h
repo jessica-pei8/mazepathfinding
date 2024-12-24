@@ -26,9 +26,6 @@ public:
     bool solveMazeBidirectional(); 
     void resetVisited();
     void generateMaze(); 
-    void createMazeDFS(); 
-    void createMazeWilson(); 
-    void loopErasedRandomWalk(int startPos); 
 
 private:
     const int size;
@@ -46,12 +43,10 @@ private:
     bool isSolvable(); 
     int heuristic(int pos);
     bool validMove(int pos, int next, int dir); 
-    bool expandBidirectional(std::queue<int>& queue, std::unordered_map<int, int>& path,
-                                   std::unordered_map<int, int>& otherPath, int directions[]); 
-
-
-
-
+    bool expandBidirectional(std::queue<int>& queue, std::unordered_map<int, int>& path, std::unordered_map<int, int>& otherPath, int directions[]); 
+    void createMazeDFS(); 
+    void createMazeWilson();
+    void loopErasedRandomWalk(int startPos); 
 };
 
 #endif 
