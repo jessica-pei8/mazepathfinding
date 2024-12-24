@@ -7,7 +7,7 @@ int main() {
     Maze maze;
     maze.resetVisited(); 
     maze.clearScreen();
-    maze.createMazeDFS();     
+    //maze.createMazeDFS();     
     maze.renderMaze(); 
     // std::cout << "DFS Solution:" << std::endl;  
     // maze.solveMazeDFS();  
